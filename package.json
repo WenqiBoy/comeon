@@ -1,0 +1,32 @@
+{
+  "name": "comeon",
+  "version": "0.0.1",
+  "description": "come on baby",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WenqiBoy/comeon.git"
+  },
+  "author": "Wenqi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/WenqiBoy/comeon/issues"
+  },
+  "homepage": "https://github.com/WenqiBoy/comeon#readme",
+  "dependencies": {
+    "async": "1.5.2",
+    "body-parser": "1.15.0",
+    "cookie-parser": "1.4.1",
+    "express": "4.13.4",
+    "glob": "7.0.0",
+    "joi": "8.0.3",
+    "lodash": "4.4.0",
+    "md5": "2.0.0",
+    "method-override": "2.3.5",
+    "morgan": "1.6.1",
+    "mysql": "2.10.2",
+    "response-time": "2.3.1",
+    "sequelize": "3.19.2",
+    "winston": "2.1.1"
+  }
+}

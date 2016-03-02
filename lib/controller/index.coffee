@@ -26,5 +26,5 @@ module.exports =
 
       valueKeys = _.keys(result.value)
       _.each valueKeys, (key) ->
-        req.input[_.camelCase(key)] = result.value[key]
+        req.data[_.camelCase(key)] = result.value[key]
       next()

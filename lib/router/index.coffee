@@ -16,7 +16,7 @@ router.bind = (verb, path, actions...) ->
     return action if _.isFunction(action)
 
     [ctrl, act] = action.split '#'
-    if !_.has(controllers, ctrl) or !_.has(controllers[ctrl], act) or !_.isFunction(controllers[ctrl][act])
+    if !_.has(controllers, ctrl) or !_.has(controllers[ctrl], act)
       throw new Error "controller:#{ctrl} action:#{act} not found."
 
     return controllers[ctrl][act] unless _.has controllers[ctrl], '_schema'

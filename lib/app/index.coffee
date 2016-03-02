@@ -51,7 +51,6 @@ module.exports = (opts) ->
   # init req.data and charset
   app.use (req, res, next) ->
     req.data = {}
-    req.input = {}
     res.charset = 'utf-8'
     next()
 

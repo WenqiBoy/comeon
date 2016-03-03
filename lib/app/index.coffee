@@ -20,7 +20,9 @@ catchHandler = (logger, handler) ->
 module.exports = (opts) ->
 
   # error logger
-  errorLogger = logger.createInstance "#{opts.logPath}/error.log"
+  errorLogName = "#{opts.logPath}/error.log"
+  errorLogger = logger.createInstance errorLogName
+  logger.addConsole errorLogName if opts.env isnt 'production'
 
   # create app
   app = express()
@@ -73,7 +75,7 @@ module.exports = (opts) ->
   # catch errors handler
   app.use (err, req, res, next) ->
     if err instanceof errors.RestError
-      return res.json(err)
+      return res.status(err.statusCode).json(err)
     else if _.has err, 'isJoi'
       joiError = errors.Invalid()
       _.each err.details, (detail) ->
@@ -82,7 +84,7 @@ module.exports = (opts) ->
       return res.json(joiError)
     else
       errorLogger.error err.stack
-      return res.json(errors.Internal())
+      return res.status(500).json(errors.Internal())
 
   # return app
   app

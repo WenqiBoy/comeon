@@ -32,13 +32,13 @@ module.exports =
       req.data = _.defaultsDeep req.data, input
 
       # 处理分页
-      if _.has action, 'pagination'
-        pagination = action.pagination
-        page = if _.parseInt(data._page) < 1 then 1 else _.parseInt(data._page)
-        limit = _parseInt(data._perpage) or pagination.perpage
-        limit = pagination.perpage if limit < 1 or limit > pagination.perpageLimit
-        offset = (page - 1) * perpage
-        req.data['_pagination'] = {limit, offset}
+      pagination = if _.has(schema, 'pagination') then schema.pagination else perpage: 20, perpageLimit: 5000
+      page = _.parseInt(data._page) or 1
+      page = 1 if page < 1
+      limit = _parseInt(data._perpage) or pagination.perpage
+      limit = pagination.perpage if limit < 1 or limit > pagination.perpageLimit
+      offset = (page - 1) * limit
+      req.data['_pagination'] = {limit, offset}
 
       # 处理输出filter
       if _.has action, 'outputFilter'

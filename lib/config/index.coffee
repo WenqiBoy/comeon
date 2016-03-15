@@ -17,7 +17,7 @@ config.env = process.env.NODE_ENV or 'development'
 
 config.load = (dirPath) ->
   defaultConfigs = utils.loadModules dirPath, '', false
-  envConfigs = utils.loadModules "#{dirPath}/#{config.env}/", '', false
+  envConfigs = utils.loadModules "#{dirPath}/#{config.env}/", '', false, false
   config.content = _.defaultsDeep envConfigs, defaultConfigs
   config
 

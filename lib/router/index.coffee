@@ -1,7 +1,7 @@
-_               = require 'lodash'
-Joi             = require 'Joi'
-utils           = require '../utils'
-baseController  = require '../controller'
+_           = require 'lodash'
+Joi         = require 'Joi'
+utils       = require '../utils'
+controller  = require '../controller'
 
 router = {}
 
@@ -13,20 +13,27 @@ router.bind = (verb, path, actions...) ->
 
   actions = _.map(actions, (action) ->
 
-    return action if _.isFunction(action)
+    return action if _.isFunction(action) or _.isArray(action)
 
+    # 解析 controller#action
     [ctrl, act] = action.split '#'
     if !_.has(controllers, ctrl) or !_.has(controllers[ctrl], act)
       throw new Error "controller:#{ctrl} action:#{act} not found."
 
-    return controllers[ctrl][act] unless _.has controllers[ctrl], '_schema'
-    schema = controllers[ctrl]['_schema'](Joi)
-    return controllers[ctrl][act] unless _.has schema.actions, act
-
     acts = []
-    controller = _.extend controllers[ctrl], baseController
-    acts.push controller._schemaValidation(schema, act)
-    acts.push controller[act]
+    # 解析schema
+    if _.has controllers[ctrl], '_schema'
+      schema = controllers[ctrl]['_schema'](Joi)
+      if _.has schema.actions, act
+        acts.push controller._parseSchema(schema, act)
+
+    # 处理beforeAction
+    if _.has(controllers[ctrl], '_beforeAction') and _.isFunction(controllers[ctrl])
+      acts.push controllers[ctrl]['_beforeAction']
+
+    # 添加目标action
+    acts.push controllers[ctrl][act]
+
     acts
   )
 
@@ -36,7 +43,7 @@ router.bind = (verb, path, actions...) ->
     actions: _.flattenDeep actions
 
 router.load = (opts) ->
-  router.controllers = utils.loadModules(opts.controllerPath)
+  router.controllers = utils.loadModules opts.controllerPath, '', false
   require(opts.routePath)(router)
   router.routes
 

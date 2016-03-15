@@ -30,6 +30,9 @@ module.exports = (opts) ->
   # disable x-powered-by
   app.disable 'x-powered-by'
 
+  # set trust proxy
+  app.set 'trust proxy', true
+
   # use morgan
   app.use morgan('dev', null) if opts.env isnt 'production'
 
@@ -81,7 +84,7 @@ module.exports = (opts) ->
       _.each err.details, (detail) ->
         detail.path = detail.path.replace(/\d+/g, 'item') if _.isString(detail.path)
         joiError.add 'validate', detail.path, 'invalid', detail.message
-      return res.json(joiError)
+      return res.status(422).json(joiError)
     else
       errorLogger.error err.stack
       return res.status(500).json(errors.Internal())

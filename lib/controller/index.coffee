@@ -1,15 +1,18 @@
 _       = require 'lodash'
 Joi     = require 'Joi'
 errors  = require '../errors'
+utils   = require '../utils'
 
 module.exports =
 
-  _schemaValidation: (schema, actName) ->
+  _parseSchema: (schema, actName) ->
     (req, res, next) ->
+
       return next() unless _.has schema.actions, actName
       schemaDict = schema.schema
       action = schema.actions[actName]
 
+      # 处理 required optional
       actionSchema = {}
       _.each _.keys(schemaDict), (paramKey) ->
         if _.includes action.required, paramKey
@@ -19,12 +22,26 @@ module.exports =
         else
           actionSchema[paramKey] = _.clone(schemaDict[paramKey]).forbidden()
 
-      validateSchema = Joi.object().keys(actionSchema)
+      # 使用Joi做验证
       data = _.merge req.params, req.body, req.query
-      result = Joi.validate(data, validateSchema, allowUnknown:true)
+      result = Joi.validate(data, Joi.object().keys(actionSchema), allowUnknown:true)
       return next result.error if result.error
 
-      valueKeys = _.keys(result.value)
-      _.each valueKeys, (key) ->
-        req.data[_.camelCase(key)] = result.value[key]
+      # 把接收到的数据转成驼峰变量命名
+      input = utils.camelCaseDeep(result.value)
+      req.data = _.defaultsDeep req.data, input
+
+      # 处理分页
+      if _.has action, 'pagination'
+        pagination = action.pagination
+        page = if _.parseInt(data._page) < 1 then 1 else _.parseInt(data._page)
+        limit = _parseInt(data._perpage) or pagination.perpage
+        limit = pagination.perpage if limit < 1 or limit > pagination.perpageLimit
+        offset = (page - 1) * perpage
+        req.data['_pagination'] = {limit, offset}
+
+      # 处理输出filter
+      if _.has action, 'outputFilter'
+        req.data['_outputFilter'] = action.outputFilter
+
       next()
